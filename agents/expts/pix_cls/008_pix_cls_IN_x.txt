@@ -1,0 +1,44 @@
+eval_setup_name="ball_cross_template"  # Only run for this template
+data_ratio_train=1.0
+
+train.loss.wt_nce=0.0
+train.loss.wt_ce=1.0
+train.loss.wt_pix=0.0
+train.loss.autoenc_loss_ratio=0.0
+train.frames_per_clip=null  # Will automatically get set from the n_hist_frames
+train.n_fwd_times=0
+train.n_hist_frames=3,4,5,6,7,8,10,13
+train.run_decode=true
+train.init_clip_ratio_to_sim=0
+train.full_eval_every=150001
+train.num_iter=150000  # Some extra iterations since training from pixels
+train.scale_num_iter=1.0
+train.batch_size=64
+train.loss.on_intermediate=true  # IMP!!
+train.num_slices=1
+
+eval.rank_size=1000  # Comparing to 1K baselines
+# eval.n_fwd_times=20
+# eval.frames_per_clip=3  # will decide on its own
+
+opt.params.lr=0.0125
+opt=sgd
+
+num_gpus=4
+
+simulator.params.stride=60
+train.modules_to_train="cls"
+agent.encoder.feat_ext.params.nlayers=4
+agent.decoder.params.nlayers=3
+
+
+agent/cls=conv_conv_3d
+
+agent.encoder.params.feat_ext_eval_mode=true
+
+fold_id=0,1,2,3,4,5,6,7,8,9
+
+# params to use IN fwd use_obj_fwd_model
+train.data_loader.fwd_model.use_obj_fwd_model=true
+agent/obj_fwd=temporal_in
+train.data_loader.fwd_model.weights=../../../fwd_models/outputs/004_fwd_IN_x.txt/\${fold_id}

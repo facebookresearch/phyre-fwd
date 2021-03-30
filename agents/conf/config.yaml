@@ -1,0 +1,199 @@
+# @package _global_
+# Identifies how the script was run. A shell script should pass its name so this
+# can be set (and all the runs can be collected)
+script_name: shell
+
+# run_id is just a dummy variable, it changes nothing. It's just used to run
+# multiple instance of the same code to check for random variations.
+run_id: 0
+# fold_id defines which tasks/templates stay in the train vs test etc.
+fold_id: 0
+use_test_split: true  # For most experiments for now
+eval_setup_name: "ball_cross_template"
+# Set to a smaller number (> 0) to use a percentage of the data (both for
+# training and testing). This is to quickly compare methods without waiting on
+# the full results. Will do a deterministic split though if keeping a part of
+# the data, to ensure reproducibility.
+data_ratio_train: 1.0
+data_ratio_eval: 1.0
+max_test_attempts_per_task: null  # Will use the phyre default
+max_train_actions: null
+tier: null  # This will be set in the code, leave it null here
+# Channels of PHYRE that are movable: red, green, blue, gray
+phyre_movable_channels: [1, 2, 3, 5]
+# Run eval even if the model has previously been evaluated (the results file
+# exists in the folder)
+force_eval: false
+
+# Note: If changing the num_gpus, might also need to change the number of
+# iterations, learning rate etc. That will be handled through the command line
+# arguments for now.
+num_gpus: 1  # Will be used for both training and evaluation
+
+simulator:
+  _target_: nets.PhyreSimulator  # TODO(rgirdhar): Fix this, should go directly from phyre_simulator
+  params:
+    stride: 5  # Every stride-th frame. Increase to make the simulation go faster
+    split_conn_comp: 1  # If >1, splits the frame into max that many components
+    movable_ch: ${phyre_movable_channels}
+    # Use this to prepend n_hist_frames-1 empty frames, so both at test and
+    # train time, the model only looks at the 1 frame to make predictions,
+    # to be comparable to the standard evaluation on phyre. List the number of
+    # frames to be added. Note they will only be added to clips starting from
+    # 0th frame. Any clips sampled from middle will not have the empty frames.
+    # If set to negative, it will *remove* that many initial frames from the rollout.
+    # Used to train single frame model that look at 3rd frame etc.
+    prepend_empty_frames: 0
+    # Set this to false to keep running the simulations if it's ended too.
+    # This is useful when training forward models, as otherwise we'll append
+    # the last frame repeated. Setting to true as default to repro old
+    # expts, though false should be ideal.
+    stop_after_solved: true
+
+# Training configuration
+train:
+  num_iter: 30000
+  # Scale the number of iterations, and related flags (save_checkpoints_every
+  # etc) with this factor. Used when training on a subset of the data.
+  scale_num_iter: 1.0
+  report_every: 100  # Print/Log stats after
+  save_checkpoints_every: 5000
+  full_eval_every: 25000  # 10K is too soon, for sth that takes 2 hours
+  # Number of actions to rank for running the testing while training. This is
+  # just to get a sense so keep it small. Same as the --dqn-num-auccess-actions
+  # in the original code
+  rank_size: 100
+  batch_size: 32  # Total (will be split across num_gpus)
+  frames_per_clip: 8  # Max frames per video that we can forward (GPU limit)
+  n_hist_frames: 3  # Number of frames used to predict the future
+  # Set the following to -1, and it will pick a random start point in the
+  # simulation at train time. If set to a fixed number, then it will run
+  # that percentage of simulation forward and then take a set of frames from
+  # that position in the simulation.
+  init_clip_ratio_to_sim: -1
+  # Number of times to run the dynamics model forward at train time
+  n_fwd_times: 1
+  # This controls *upto* how many of these forwards to actually incur loss on.
+  # If large + number, it incurs loss on all n_fwd_times. Else, it incurs loss
+  # on min(n_fwd_times_incur_loss, n_fwd_times) times.
+  n_fwd_times_incur_loss: 999999
+  # Set to true to train the decoder as well
+  run_decode: false
+  # Train subset of the network. List out the modules '\;' separated.
+  # Do not put module.xx infront of the name.
+  modules_to_train: null
+  # If -1, make as many slices of the training data as possible (from frame 0,
+  # 1, etc). If 1, keep only the first one. (1 is used when training classifier
+  # on top, which should always see videos from the start)
+  num_slices: -1
+  # Set to true if you want to shuffle the indices before divvying up the
+  # indices between workers. Ideally should be true, but sticking with false
+  # since the initial models were trained with this and want to maintain
+  # compatibility. Future models can explore a more well distributed set.
+  shuffle_indices: false
+  # List of objects indexes to drop from the tasks, for visualization etc.
+  # Separated by ;
+  drop_objs: ""
+  # Loss weights
+  loss:
+    # Note: also add to the launch file when creating cls files, all other
+    # losses should be set to 0
+    wt_nce: 1.0  # Amount of weight on the NCE loss
+    wt_ce: 1.0  # Earlier it was 1-wt_nce, on Dec 4 2019 it was separated
+    wt_pix: 0.0  # Additional loss on the pixel prediction, if decode is on
+    wt_autoenc_pix: 1.0  # On the autoencoder pixel prediction
+    wt_cswm: 0.0
+    wt_kl: 0.1  # In case a stochastic model is being trained with a KL loss
+    on_intermediate: false  # Set true to generate intermediate outputs, and incur loss on those
+    autoenc_loss_ratio: 0  # When run_decode is set, run it on this % of input images too
+
+  # Obj loss weights
+  obj_loss:
+    # Note: also add to the launch file when creating cls files, all other
+    # losses should be set to 0
+    wt_ce: 1.0  # Earlier it was 1-wt_nce, on Dec 4 2019 it was separated
+    wt_l2: 1.0
+    on_intermediate: false  # Set true to generate intermediate outputs, and incur loss on those
+
+  data_loader:
+    max_train_actions: ${max_train_actions}
+    num_workers: 32  # 4 per gpu, since most commonly I run 8-gpu jobs. More seems to hang
+    balance_classes: true
+    # Set > 0 to use hard negatives in training. Hard negative is an action
+    # close in the euclidean space but leads to a negative result.
+    hard_negatives: 0.0
+    fwd_model:
+      use_obj_fwd_model: false
+      agent: agent/obj_fwd
+      weights: null
+
+eval:
+  # TODO(rgirdhar): Scale this to be 4x the train size.. since test can do more
+  batch_size: null  # If None, will handle in code, as multiple of train size  # ${train.batch_size}  # Total (will be split across num_gpus)
+  bs_multiplier: 4  # If batch_size is not defined, it will mul the train bs by this
+  # Number of actions being re-ranked at test time. Same as --dqn-rank-size
+  # in the original code. Keep it 10K for within, and 1K for cross template 1b
+  rank_size: 1000
+  n_hist_frames: ${train.n_hist_frames}
+  # Set this to how much ratio of video we want to first roll out before the test
+  # clip is extracted. It will extract init_frames_to_sim from that point in the
+  # clip.
+  init_clip_ratio_to_sim: 0
+  # Number of times to run the dynamics model forward at eval time
+  n_fwd_times: ${train.n_fwd_times}
+  # Extract these many frames *after* init_clip_ratio_to_sim
+  init_frames_to_sim: ${eval.n_hist_frames}
+  # If null, it will autocalculate in the phyre_dataset.py, else use this
+  frames_per_clip: null
+  # To store the visualizations to disk, the run_decode will also be set to true
+  store_vis: false  # Will select only 1 task per template when visualizing
+  store_vis_tasks_per_template: 3  # 3 tasks per template to be vis-ed
+  store_vis_nsamples: 4  # Per template/task, vis 4 samples
+  # Override the actions being visualized. The exact format for the string is
+  # in offline_agents.py
+  store_vis_actions: null
+  # List of objects indexes to drop from the tasks, for visualization etc.
+  # Separated by ; It is processed in the phyre_dataset.py file.
+  drop_objs: null
+  data_loader:
+    num_workers: ${train.data_loader.num_workers}
+
+defaults:
+  - agent: im_fwd
+  - opt: sgd
+  - agent/preproc_core: one_hot
+  - agent/encoder: basic
+  - agent/encoder/feat_ext: resnet
+  - agent/encoder/objectifier: trivial
+  - agent/decoder/activation: relu
+  - agent/interactor: trivial
+  - agent/dyn: concat
+  - agent/spat_att: trivial
+  - agent/cls: mlp
+  - agent/decoder: basic
+  - agent/loss_fn/pix: pix_ce
+  - agent/loss_fn/nce: info_nce
+  - hydra/launcher: submitit_slurm
+  - hydra/job_logging: colorlog
+  - hydra/hydra_logging: colorlog
+  - agent/obj_cls: dummy
+  - agent/obj_fwd: dummy
+
+hydra:
+  job:
+    name: "train"
+  launcher:
+    timeout_min: 1440  # 24 hours (Scheduled faster)
+    nodes: 1
+    gpus_per_node: ${num_gpus}
+    mem_gb: 400  # 50 * 8 should be enough.. but need to manually reduce for smaller jobs
+    cpus_per_task: 48  # Upper bound
+    tasks_per_node: 1
+    max_num_timeout: 3
+
+  run:
+    dir: ${hydra.runtime.cwd}/outputs/${script_name}/${now:%Y-%m-%d_%H-%M-%S}
+  sweep:
+    dir: ${hydra.run.dir}
+    # Output sub directory for sweep runs.
+    subdir: ${hydra.job.num}  # _${hydra.job.id}

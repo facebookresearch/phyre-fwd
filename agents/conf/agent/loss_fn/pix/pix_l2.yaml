@@ -1,0 +1,5 @@
+# @package _global_
+agent:
+  loss_fn:
+    pix:
+      _target_: nets.PixL2Loss

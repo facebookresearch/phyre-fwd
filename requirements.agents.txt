@@ -1,0 +1,12 @@
+
+Pillow==6.2.2
+tqdm==4.38.0
+tensorboard
+h5py
+hydra-core==1.0.4
+hydra-submitit-launcher
+hydra_colorlog
+yapf==0.28.0
+torch==1.4.0
+torchvision==0.5.0
+inquirer==2.7.0

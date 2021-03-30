@@ -1,0 +1,9 @@
+# @package _global_
+agent:
+  dyn:
+    _target_: nets.DynSTNPixels
+    params:
+      n: ${train.n_hist_frames}  # This dynamics model can only work with a certain number of previous frames
+      nobj: ${agent.nobj}
+      num_tx: 1
+      base_stn: ${agent.base_stn}

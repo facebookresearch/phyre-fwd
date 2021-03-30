@@ -1,0 +1,5 @@
+# @package _global_
+opt:
+  _target_: torch.optim.Adam
+  params:
+    lr: 0.1

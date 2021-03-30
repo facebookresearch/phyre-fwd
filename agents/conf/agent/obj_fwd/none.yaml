@@ -1,0 +1,4 @@
+# @package _global_
+agent:
+  obj_fwd:
+    _target_: obj_nets.PlaceholderFowardModel

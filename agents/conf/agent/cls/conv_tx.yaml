@@ -1,0 +1,8 @@
+# @package _global_
+agent:
+  cls:
+    _target_: nets.ConvTxClassifier
+    params:
+      nconvblocks: 4
+      nheads: 8
+      nlayers: 6

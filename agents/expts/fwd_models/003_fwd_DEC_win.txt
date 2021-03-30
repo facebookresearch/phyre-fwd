@@ -1,0 +1,30 @@
+eval_setup_name="ball_within_template"  # Only run for this template
+train.loss.wt_nce=0.0
+train.n_fwd_times=10
+train.frames_per_clip=20
+train.loss.wt_ce=0.0
+train.loss.wt_pix=1.0
+train.run_decode=true
+num_gpus=8
+train.batch_size=16
+train.full_eval_every=50000
+train.num_iter=50000
+train.loss.on_intermediate=true
+simulator.params.stride=60
+agent.nobj=1
+agent.encoder.feat_ext.params.nlayers=4
+agent.decoder.params.nlayers=3
+train.loss.autoenc_loss_ratio=0.0
+
+opt=sgd
+opt.params.lr=0.01
+
+
+eval.store_vis=True
+eval.frames_per_clip=20
+eval.n_fwd_times=20
+eval.store_vis_nsamples=10
+
+# agent.loss_fn.pix.params.loss_type="_per_channel_spatial_softmax"
+
+fold_id=0,1,2,3,4,5,6,7,8,9

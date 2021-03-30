@@ -1,0 +1,23 @@
+# @package _global_
+agent:
+  encoder:
+    _target_: nets.BasicEncoder
+    params:
+      feat_ext: ${agent.encoder.feat_ext}
+      objectifier: ${agent.encoder.objectifier}
+      obj_encoder:
+        # The default behavior is to essentially do nothing
+        _target_: nets.BasicObjEncoder
+        params:
+          out_dim: 16  # Per object
+          nlayers: 0
+          spatial_mean: false
+      spatial_mean: false
+      # Set this to true to set the feature extractor (which typically has
+      # batch norms, dropout etc) to eval mode. Hence, all those will be set to
+      # testing only.
+      feat_ext_eval_mode: false
+      # If true, it combines all the objects (say from the connected comps) on
+      # channel dimension and extract features, and then splits the features on
+      # the channel dimension to get features per object.
+      process_objs_together: false

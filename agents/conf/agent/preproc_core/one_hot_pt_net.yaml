@@ -1,0 +1,4 @@
+# @package _global_
+agent:
+  preproc_core:
+    _target_: nets.OneHotPtNetPreprocCore

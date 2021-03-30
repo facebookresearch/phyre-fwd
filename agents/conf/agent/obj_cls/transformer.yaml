@@ -1,0 +1,17 @@
+# @package _global_
+agent:
+  obj_cls:
+    _target_: obj_nets.TransformerPredictionNetwork
+    params:
+      n_hist_frames: ${train.n_hist_frames}
+      n_fwd_times: ${train.n_fwd_times}
+      n_heads: 8
+      n_layers: 6
+      embedding_size: 128
+      aggregate_hidden_size: 128
+      aggregate: mean
+      embed_tf: true
+      shuffle_embed: false
+      score_hidden_first_layer_scale: 1
+      class_extra_layer: false
+      tf_layer_norm: false

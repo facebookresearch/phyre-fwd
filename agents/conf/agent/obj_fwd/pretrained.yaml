@@ -1,0 +1,8 @@
+# @package _global_
+agent:
+  obj_fwd:
+    _target_: obj_nets.PretrainedForwardModel
+    params:
+      checkpoint_path: /private/home/lgustafson/phyre-ablation-5/phyre/results/final/4_09_IN_V0
+      eval_setup: ${eval_setup_name}
+      fold_id: ${fold_id}

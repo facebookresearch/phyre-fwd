@@ -1,0 +1,5 @@
+# @package _global_
+# Does nothing
+agent:
+  spat_att:
+    _target_: nets.TrivialSpatialAttention

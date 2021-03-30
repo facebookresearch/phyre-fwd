@@ -1,0 +1,40 @@
+eval_setup_name="ball_cross_template"  # Only run for this template
+
+train.frames_per_clip=4# Will automatically get set from the n_hist_frames
+train.n_fwd_times=1
+train.n_hist_frames=3
+train.run_decode=true
+train.init_clip_ratio_to_sim=-1
+train.num_iter=200000
+train.full_eval_every=200000
+train.batch_size=64
+train.loss.on_intermediate=true
+train.num_slices=-1
+train.n_fwd_times_incur_loss=1
+
+train.modules_to_train=forward_model
+
+eval.rank_size=1000  # Comparing to 1K baselines
+# eval.n_fwd_times=20
+# eval.frames_per_clip=3  # will decide on its own
+
+opt.params.lr=1e-3
+opt=adam
+
+num_gpus=8
+
+simulator.params.stride=60
+
+train.obj_loss.wt_ce=0.0
+train.obj_loss.wt_l2=1.0
+train.obj_loss.on_intermediate=true
+eval.store_vis=True
+eval.frames_per_clip=20
+eval.n_fwd_times=20
+eval.store_vis_tasks_per_template=25
+eval.store_vis_nsamples=10
+agent=obj_fwd
+agent.strip_padding=True
+agent/obj_cls=dummy
+agent/obj_fwd=temporal_in
+fold_id=0,1,2,3,4,5,6,7,8,9

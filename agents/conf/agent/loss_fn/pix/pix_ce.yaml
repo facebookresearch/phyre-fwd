@@ -1,0 +1,8 @@
+# @package _global_
+agent:
+  loss_fn:
+    pix:
+      _target_: nets.PixCELoss
+      params:
+        wt_fn: "_pix_wts_count_reciprocal"
+        loss_type: "_per_pixel_softmax"

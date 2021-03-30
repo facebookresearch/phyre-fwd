@@ -1,0 +1,4 @@
+# @package _global_
+agent:
+  obj_cls:
+    _target_: obj_nets.DummyClassificationModel

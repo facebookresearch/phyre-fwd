@@ -1,0 +1,30 @@
+# @package _global_
+agent:
+  type: "fwd"  # The name of the agent
+  trainer:
+    _target_: obj_fwd_agent.ObjTrainer
+  input_space: "obj" # Input to model, either 'vid' or 'obj'
+  # Specify if you want to load some pretrained weights. If set, it will only
+  # run testing.
+  weights_folder: null
+  # Initialize the model using these weights. It will be okay with partial
+  # init, and will start training from these weights (will not load #iter etc)
+  init_weights_folder: null
+  # Number of objects to extract. note different from ones that are extracted
+  # initially, using connected components say. The initially extracted objs
+  # will be converted into this many final objects. Typically used only
+  # when the connected components being extracted is just 1
+  nframes_to_cls: -1
+  strip_padding: False
+  cls_pixel: False
+  nobj: ${simulator.params.split_conn_comp}
+  train_noise_std: 0.014435
+  train_noise_percent: 0.2 # from IN paper, % of samples to add noise to
+  decay_noise_start: 0.025 # % of training that should be done w/maximum value of nosie
+  # From IN paper
+  decay_noise_end: 0.125 # Once % of training complete, do not add noise to data
+  # From IN paper
+  train_with_noise: True
+  dyn_dont_predict_ball_theta: True
+  dyn_use_cos_theta_loss: True
+  model_hist_frames: 3

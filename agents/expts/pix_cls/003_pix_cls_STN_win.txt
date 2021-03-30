@@ -1,0 +1,50 @@
+eval_setup_name="ball_within_template"  # Only run for this template
+data_ratio_train=1.0
+
+train.loss.wt_nce=0.0
+train.loss.wt_ce=1.0
+train.loss.wt_pix=0.0
+train.loss.autoenc_loss_ratio=0.0
+train.frames_per_clip=null  # Will automatically get set from the n_hist_frames
+train.n_fwd_times=0,1,2,3,5,7,10  # Too many jobs
+train.n_hist_frames=3
+train.run_decode=false
+train.init_clip_ratio_to_sim=0
+train.full_eval_every=25000
+train.num_iter=100000
+train.scale_num_iter=${data_ratio_train}
+train.batch_size=64
+train.loss.on_intermediate=true  # IMP!!
+train.num_slices=1
+
+eval.rank_size=1000  # Comparing to 1K baselines
+# eval.n_fwd_times=20
+# eval.frames_per_clip=3  # will decide on its own
+
+opt.params.lr=0.0125
+opt=sgd
+
+num_gpus=2
+
+simulator.params.stride=60
+train.modules_to_train="cls"
+agent.init_weights_folder=../../../fwd_models/002_fwd_STN_win.txt/${fold_id}
+
+fold_id=0,1,2,3,4,5,6,7,8,9
+
+agent/cls=conv_3d
+
+# This was commented out in the unfixed version... :(
+agent.encoder.params.feat_ext_eval_mode=true
+
+# STUFF from the forward model
+
+simulator.params.split_conn_comp=2  # Should mostly cover all objects in within
+# agent.encoder.params.process_objs_together=true
+agent/dyn=stn_pixel_channels_det_bg
+agent/decoder=trivial
+agent.base_stn.params.dof="rot-trans-only"
+agent.base_stn.params.affine_tx_mode="bilinear"
+agent.dyn.params.movable_only=True
+agent.loss_fn.pix.params.wt_fn="_pix_wts_count_reciprocal"
+agent.loss_fn.pix.params.loss_type="_per_channel_spatial_softmax"

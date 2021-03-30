@@ -1,0 +1,45 @@
+# @package _global_
+agent:
+  type: "fwd"  # The name of the agent
+  trainer:
+    _target_: im_fwd_agent.ImgTrainer
+  input_space: "vid" # Input to model, either 'vid' or 'obj'
+  # Specify if you want to load some pretrained weights. If set, it will only
+  # run testing.
+  weights_folder: null
+  # Initialize the model using these weights. It will be okay with partial
+  # init, and will start training from these weights (will not load #iter etc)
+  init_weights_folder: null
+  # Number of objects to extract. note different from ones that are extracted
+  # initially, using connected components say. The initially extracted objs
+  # will be converted into this many final objects. Typically used only
+  # when the connected components being extracted is just 1
+  nobj: ${simulator.params.split_conn_comp}
+  # Number of frames to classify the rollout. If -1, it will use as many
+  # possible (default). Else, it will use that many from the ones provided.
+  # Note this number includes the GT frames passed in, so at 1, it will be
+  # using the first GT frame.
+  nframes_to_cls: -1
+  # The base STN model used by all STN-based dynamics models
+  base_stn:
+    _target_: nets.MultiSTN
+    params:
+      dof: "affine"  # Could be 'affine', 'rot-trans-only', 'rot-only', 'trans-only'
+      inp_type: "pix"  # Could be 'pix' or 'pt'
+      affine_tx_mode: "bilinear"  # Any of grid_sample modes
+      kernel_size: 3  # The kernel of the convnet used to make the predictions
+      stochastic: false
+
+  strip_padding: False
+  cls_pixel: False
+  # nobj: ${simulator.params.split_conn_comp}
+  train_noise_std: 0.014435
+  train_noise_percent: 0.2 # from IN paper, % of samples to add noise to
+  decay_noise_start: 0.025 # % of training that should be done w/maximum value of nosie
+  # From IN paper
+  decay_noise_end: 0.125 # Once % of training complete, do not add noise to data
+  # From IN paper
+  train_with_noise: True
+  dyn_dont_predict_ball_theta: True
+  dyn_use_cos_theta_loss: True
+  model_hist_frames: 3

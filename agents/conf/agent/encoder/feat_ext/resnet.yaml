@@ -1,0 +1,11 @@
+# @package _global_
+agent:
+  encoder:
+    feat_ext:
+      _target_: nets.ResNetBaseEncoder
+      params:
+        base_model:
+          _target_: torchvision.models.resnet18
+          params:
+            pretrained: false
+        nlayers: 4  # Number of resnet blocks

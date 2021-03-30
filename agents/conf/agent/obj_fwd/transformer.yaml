@@ -1,0 +1,10 @@
+# @package _global_
+agent:
+  obj_fwd:
+    _target_: obj_nets.TransformerForwardObjectNetwork
+    params:
+      hist_frames: ${agent.model_hist_frames}
+      only_pred_dynamic: True
+      clip_output: True
+      dont_predict_ball_theta: True
+      predict_residuals: True

@@ -1,0 +1,4 @@
+# @package _global_
+agent:
+  interactor:
+    _target_: nets.TrivialInteractor

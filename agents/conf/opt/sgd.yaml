@@ -1,0 +1,6 @@
+# @package _global_
+opt:
+  _target_: torch.optim.SGD
+  params:
+    lr: 0.1
+    momentum: 0.9

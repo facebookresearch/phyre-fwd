@@ -1,0 +1,10 @@
+# @package _global_
+agent:
+  dyn:
+    _target_: nets.DynSTNPixelChannelsDetBg
+    params:
+      n: ${train.n_hist_frames}  # This dynamics model can only work with a certain number of previous frames
+      nobj: ${agent.nobj}
+      base_stn: ${agent.base_stn}
+      movable_ch: ${phyre_movable_channels}
+      movable_only: false  # Only transform the movable channels, copy others as is

@@ -1,0 +1,37 @@
+eval_setup_name="ball_cross_template"
+train.loss.wt_nce=0.0
+train.n_fwd_times=1
+train.frames_per_clip=16
+train.loss.wt_ce=0.0
+train.loss.wt_pix=1.0
+train.loss.autoenc_loss_ratio=0.0
+train.run_decode=true
+num_gpus=8
+train.batch_size=16
+train.num_iter=100000
+train.loss.on_intermediate=true
+train.full_eval_every=100000
+opt.params.lr=0.00005
+opt=adam
+
+simulator.params.stride=60
+simulator.params.split_conn_comp=2  # Should mostly cover all objects in within
+
+# agent.encoder.params.process_objs_together=true
+agent/dyn=stn_pixel_channels_det_bg
+agent/decoder=trivial
+agent.base_stn.params.dof="rot-trans-only"
+agent.base_stn.params.affine_tx_mode="bilinear"
+agent.dyn.params.movable_only=True
+agent.loss_fn.pix.params.wt_fn="_pix_wts_count_reciprocal"
+agent.loss_fn.pix.params.loss_type="_per_channel_spatial_softmax"
+
+
+eval.store_vis=True
+eval.frames_per_clip=20
+eval.n_fwd_times=20
+eval.store_vis_nsamples=10
+
+# agent.encoder.feat_ext.params.base_model.class=torchvision.models.resnet34
+
+fold_id=0,1,2,3,4,5,6,7,8,9

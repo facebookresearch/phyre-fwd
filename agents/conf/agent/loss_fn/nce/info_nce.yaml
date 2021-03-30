@@ -1,0 +1,9 @@
+# @package _global_
+agent:
+  loss_fn:
+    nce:
+      _target_: nets.InfoNCELoss
+      params:
+        temp: 0.07
+        l2_norm_feats: true
+        nce_dim: null

@@ -1,0 +1,6 @@
+# @package _global_
+agent:
+  cls:
+    _target_: nets.Conv3dClassifier
+    params:
+      num_3d_layers: 5

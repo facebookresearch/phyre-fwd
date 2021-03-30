@@ -1,0 +1,44 @@
+eval_setup_name="ball_within_template"  # Only run for this template
+# data_ratio_train=1.0
+
+train.loss.wt_nce=0.0
+train.loss.wt_ce=1.0
+train.loss.wt_pix=1.0
+train.loss.autoenc_loss_ratio=0.0
+train.frames_per_clip=13
+train.n_fwd_times=0,1,2,3,4,5,7,10
+train.n_hist_frames=3
+train.run_decode=true
+train.init_clip_ratio_to_sim=0
+train.full_eval_every=150000
+train.num_iter=150000
+# train.scale_num_iter=${data_ratio_train}
+train.batch_size=64
+train.loss.on_intermediate=true  # IMP!!
+train.num_slices=1
+
+eval.rank_size=10000
+# eval.n_fwd_times=20
+# eval.frames_per_clip=3  # will decide on its own
+
+opt.params.lr=0.0125
+opt=sgd
+
+num_gpus=8
+
+simulator.params.stride=60
+# train.modules_to_train="cls"
+agent.encoder.feat_ext.params.nlayers=4
+agent.decoder.params.nlayers=3
+
+
+agent/cls=conv_3d
+
+# agent.encoder.params.feat_ext_eval_mode=true
+
+train.n_hist_frames=3  # Same as normal
+simulator.params.prepend_empty_frames=2  # 3 - 1
+
+train.n_fwd_times_incur_loss=5
+
+fold_id=0,1,2,3,4,5,6,7,8,9

@@ -1,0 +1,16 @@
+# @package _global_
+agent:
+  decoder:
+    _target_: nets.BasicDecoder
+    params:
+      nlayers: 3  # These are the intermediate layers in the decoder. Total is +2
+      kernel_size: 3
+      padding: 1
+      upsample_factor: 2  # Per deconv layer
+      decode_from: "features"  # "features" or "pixels"
+      # Set to false to train the decoder independent of the
+      backprop_feat_ext: true
+      # Whether to instance normalize the features of all intermediate layers
+      # in the decoder. Might help with stability of the training.
+      inst_norm: false
+      activation: ${agent.decoder.activation}
